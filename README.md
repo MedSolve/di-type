@@ -8,13 +8,11 @@ To use this in your project and save it in the package.json file do:
 Please be aware that we use [semantic versioning](http://semver.org). This means that you should be able to safely subscribe to updates on this module for versions 1.x.x or 2.x.x etc. Major versions for example from 1.x.x to 2.x.x is not safe as the module API might change.
 
 # Example
-An example of the annotations possible in the component is given here. There are two notations forms _createWith_ and _inject_.
+An example of the syntax are given below.
 
 ```javascript
 // if you are using ORDS as an npm module
-import {DependencyInjectorComponent}  from 'ords-fhir';
-// if you are developing an internal component
-import {DependencyInjectorComponent}  from '../path/to/dependency-injection';
+import {Component, bootstrap}  from 'di-type';
 
 // another class that is needed a singleton of
 import {Anotherclass} from './somepath';

@@ -1,8 +1,11 @@
 // nothing yet
 import {Component, bootstrap}     from        '../src';
 
+/**
+ * Original name
+ */
 export class GoatConfigProvider {
-    public name: string = 'fish';
+    public name: string = 'James';
     public status: string = 'small';
     constructor() {
         console.log('GoatConfigProvider called');
