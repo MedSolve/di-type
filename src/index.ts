@@ -1,2 +1,2 @@
-export {DI as DependencyInjectorComponent} from './dependency-injector.component';
-import * as DependencyInjectorModels       from './dependency-injector.models'; export {DependencyInjectorModels}
+export *                from  './dependency-injector.component';
+import * as DIModels    from  './dependency-injector.models'; export {DIModels};

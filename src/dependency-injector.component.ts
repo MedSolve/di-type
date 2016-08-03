@@ -1,70 +1,79 @@
-import {Singletons}     from    './models/singletons';
+import {Dependencies}     from    './models/dependencies';
 
-/**
- * Manage singletons for all dependencies
- * @class DependencyInjector
- */
-export class DependencyInjector {
-    /**
-     * Contains all initiated singletons
-     */
-    private singletons: Singletons = {};
-    /**
-     * Create an instance of target and inject from the listed dependencies
-     * @param   {...any}  dependencies  list of dependencies needed to resolved
-     * @returns {void}    
-     */
-    public createWith(...dependencies: Array<any>): Function {
+let prepared: Array<any> = [];
 
-        // return the function specified by ts documentation
-        return (target: any) => {
+export function Component(dependencies: Dependencies): Function {
 
-            // preapre this argument
-            let instance: any = Object.create(target.prototype);
+    'use strict';
 
-            let args: Array<Function> = [];
+    let args: Array<Function> = [];
 
-            // loop all the dependencies if a singleton allready exsists
-            for (let entry of dependencies) {
+    Array.prototype.push.apply(args, dependencies.providers);
+    Array.prototype.push.apply(args, dependencies.directives);
 
-                // generate a new singleton
-                if (this.singletons[entry] === undefined) {
+    // return the function specified by ts documentation
+    return (target: any) => {
 
-                    this.singletons[entry] = new entry();
-                }
+        // the new constructor behaviour
+        let f: any = function (): any {
 
-                // set the value of target to the required singleton      
-                args.push(this.singletons[entry]);
+            // prepre holder for instances
+            let instances: Array<any> = [];
+
+            // retrive instance of the class
+            for (let entry of f.dependencies) {
+                instances.push(instanceiateDependency(entry));
             }
 
-            // call target and save reference as singleton
-            target.apply(instance, args);
-            this.singletons[target] = instance;
+            // apply to original target constructor
+            target.apply(this, instances);
+            f._instance = this;
         };
-    }
-   /**
-    * Inject a singleton into a property of a class
-    * @param   {any}       dependency  list of dependencies needed to resolve
-    * @returns {Function}  declaration for a property function
-    */
-    public inject(dependency: any): Function {
 
-        // return the function specified by ts documentation
-        return (target: any, propertyKey: string | symbol) => {
+        // forgot to copy prototype
+        f.prototype = target.prototype;
+        f.dependencies = args;
 
+        prepared.push(f);
 
-            // if singleton do not exsists create a new one
-            if (this.singletons[dependency] === undefined) {
-                this.singletons[dependency] = new dependency();
-            }
-
-            // set the value of target to the required singleton      
-            target[propertyKey] = this.singletons[dependency];
-        };
-    }
+        return f;
+    };
 }
 
-/**
- * Singleton for managing injections
- */
-export const DI: DependencyInjector = new DependencyInjector();
+function instanceiateDependency(target: any): any {
+
+    'use strict';
+
+    // check if an instances exists
+    if (target._instance === undefined) {
+
+        // create new instance
+        target._instance = new target();
+    }
+
+    return target._instance;
+}
+
+export function bootstrap(main: any): void {
+
+    'use strict';
+
+    let tmp: any;
+
+    // start everything
+    for (let entry of prepared) {
+
+        // start only if not allready started
+        if (entry._instance === undefined) {
+
+            tmp = new entry();
+        }
+    }
+
+    // start instance
+    if (main._instance === undefined) {
+        this.main = new main();
+    } else {
+        this.main = main._instance;
+    }
+}

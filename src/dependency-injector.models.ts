@@ -1,1 +1,1 @@
-export {Singletons}     from    './models/singletons';
+export * from   './models/dependencies';
