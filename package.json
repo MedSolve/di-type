@@ -1,6 +1,6 @@
 {
   "name": "di-type",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Dependency injection with typescript",
   "main": "build/src/index.js",
   "typings": "build/src/index.d.ts",
