@@ -1,4 +1,5 @@
 import {Dependencies}     from    './models/dependencies';
+import {Injectable}       from    './models/injectable';
 
 let prepared: Array<any> = [];
 
@@ -21,8 +22,8 @@ export function Component(dependencies: Dependencies): Function {
             let instances: Array<any> = [];
 
             // retrive instance of the class
-            for (let entry of f.dependencies) {
-                instances.push(instanceiateDependency(entry));
+            for (let entry of f._dependencies) {
+                instances.push(instanceiateDependency(f, entry));
             }
 
             // apply to original target constructor
@@ -30,9 +31,22 @@ export function Component(dependencies: Dependencies): Function {
             f._instance = this;
         };
 
-        // forgot to copy prototype
+
+        // loop all the providers and attach who is providing them
+        for (let provider of dependencies.providers) {
+
+            // check if any providing is there
+            if (provider._providing === undefined) {
+                provider._providing = [];
+            }
+
+            // save reference to this class
+            provider._providing.push(f);
+        }
+
+        // copy prototype
         f.prototype = target.prototype;
-        f.dependencies = args;
+        f._dependencies = args;
 
         prepared.push(f);
 
@@ -40,21 +54,41 @@ export function Component(dependencies: Dependencies): Function {
     };
 }
 
-function instanceiateDependency(target: any): any {
+function instanceiateDependency(caller: Injectable, target: Injectable): any {
 
     'use strict';
+
+    // temp reference to instances
+    let temp: any;
 
     // check if an instances exists
     if (target._instance === undefined) {
 
         // create new instance
         target._instance = new target();
+
+        // check if any classes should be enabled first
+        if (target._providing !== undefined) {
+
+            // if caller is not allowed basically
+            if (target._providing.indexOf(caller) === -1) {
+
+                // create new instances of them first
+                for (let provider of target._providing) {
+
+                    temp = new provider();
+                }
+
+                // delete all stuff about providing
+                delete target._providing;
+            }
+        }
     }
 
     return target._instance;
 }
 
-export function bootstrap(main: any): void {
+export function bootstrap(main: Injectable): void {
 
     'use strict';
 

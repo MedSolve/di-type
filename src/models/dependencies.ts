@@ -1,4 +1,6 @@
+import {Injectable}       from    './injectable';
+
 export interface Dependencies {
-    directives: Array<Function>;
-    providers: Array<Function>;
+    directives: Array<Injectable>;
+    providers: Array<Injectable>;
 }
